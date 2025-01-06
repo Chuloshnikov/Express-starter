@@ -30,6 +30,12 @@ let tasks = [
 
 app.use(bodyParser.json());
 
+const checkExist = (task, res) => {
+    if (!task) {
+        res.status(404).json({ message: 'Task not found'});
+    }
+}
+
 app.get('/', (req, res) => {
     res.send('Hello bratuha!');
 });
@@ -37,6 +43,17 @@ app.get('/', (req, res) => {
 
 app.get('/tasks', (req, res) => {
     return res.status(200).json(tasks);
+});
+
+app.get('/tasks/:id', (req, res) => {
+    const taskId = parseInt(req.params.id);
+
+
+    const foundTask = tasks.find(task => task.id === taskId);
+
+    checkExist(foundTask, res);
+
+    return res.status(200).json(foundTask);
 });
 
 app.post('/tasks', (req, res) => {
@@ -54,10 +71,8 @@ app.put('/tasks/:id', (req, res) => {
 
     const foundTask = tasks.find(task => task.id === taskId);
 
-    if (!foundTask) {
-        return res.status(404).json({ message: 'Task not found'});
-    }
-
+    checkExist(foundTask, res);
+    
     foundTask.text = updatedTask.text;
 
     return res.status(200).json(foundTask);
